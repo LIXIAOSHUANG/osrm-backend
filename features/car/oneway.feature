@@ -67,7 +67,7 @@ Feature: Car - Oneway streets
 
     Scenario: Car - Two consecutive oneways
         Given the node map
-            | a | b | c |
+            | a | b |   | c |
 
         And the ways
             | nodes | oneway |
