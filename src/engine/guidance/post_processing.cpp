@@ -373,7 +373,6 @@ void collapseTurnAt(std::vector<RouteStep> &steps,
                     const std::size_t one_back_index,
                     const std::size_t step_index)
 {
-    std::cout << "At" << two_back_index << " " << one_back_index << " " << step_index << std::endl;
     BOOST_ASSERT(step_index < steps.size());
     BOOST_ASSERT(one_back_index < steps.size());
     const auto &current_step = steps[step_index];
@@ -415,15 +414,20 @@ void collapseTurnAt(std::vector<RouteStep> &steps,
         if (compatible(one_back_step, current_step))
         {
             steps[one_back_index] = elongate(std::move(steps[one_back_index]), steps[step_index]);
-            steps[one_back_index].name = current_step.name;
-            steps[one_back_index].name_id = current_step.name_id;
-            invalidateStep(steps[step_index]);
-
-            if (TurnType::Continue == one_back_step.maneuver.instruction.type ||
-                TurnType::Suppressed == one_back_step.maneuver.instruction.type)
+            if ((TurnType::Continue == one_back_step.maneuver.instruction.type ||
+                 TurnType::Suppressed == one_back_step.maneuver.instruction.type) &&
+                current_step.name_id != steps[two_back_index].name_id)
             {
                 steps[one_back_index].maneuver.instruction.type = TurnType::Turn;
             }
+            else if (TurnType::Turn == one_back_step.maneuver.instruction.type &&
+                     current_step.name_id == steps[two_back_index].name_id)
+            {
+                steps[one_back_index].maneuver.instruction.type = TurnType::Continue;
+            }
+            steps[one_back_index].name = current_step.name;
+            steps[one_back_index].name_id = current_step.name_id;
+            invalidateStep(steps[step_index]);
         }
     }
     // Potential U-Turn
@@ -589,7 +593,6 @@ std::vector<RouteStep> postProcess(std::vector<RouteStep> steps)
 // Post Processing to collapse unnecessary sets of combined instructions into a single one
 std::vector<RouteStep> collapseTurns(std::vector<RouteStep> steps)
 {
-    print(steps);
     if (steps.size() <= 2)
         return steps;
 
@@ -687,7 +690,6 @@ std::vector<RouteStep> collapseTurns(std::vector<RouteStep> steps)
             BOOST_ASSERT(step_index > 0);
             const std::size_t last_available_name_index = getPreviousNameIndex(step_index);
 
-            std::cout << "First" << std::endl;
             for (std::size_t index = last_available_name_index + 1; index <= step_index; ++index)
             {
                 steps[last_available_name_index] =
@@ -702,7 +704,6 @@ std::vector<RouteStep> collapseTurns(std::vector<RouteStep> steps)
                  isCollapsableInstruction(current_step.maneuver.instruction) &&
                  isCollapsableInstruction(one_back_step.maneuver.instruction))
         {
-            std::cout << "Second" << std::endl;
             const auto two_back_index = getPreviousIndex(one_back_index);
             BOOST_ASSERT(two_back_index < steps.size());
             // valid, since one_back is collapsable:

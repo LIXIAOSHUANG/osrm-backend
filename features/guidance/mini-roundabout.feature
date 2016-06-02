@@ -62,5 +62,5 @@ Feature: Mini Roundabout
             | be    | tertiary        | MySt |
 
        When I route I should get
-           | from | to | route          | turns                    | #                                               |
-           | a    | d  | MySt,MySt,MySt | depart,turn right,arrive | # suppress multiple enter/exit mini roundabouts |
+           | from | to | route          | turns                        | #                                               |
+           | a    | d  | MySt,MySt,MySt | depart,continue right,arrive | # suppress multiple enter/exit mini roundabouts |

@@ -468,3 +468,20 @@ Feature: Collapse
             | waypoints | route            | turns                    |
             | a,d       | road,left,left   | depart,turn left,arrive  |
             | a,e       | road,right,right | depart,turn right,arrive |
+
+    Scenario: No Name During Turns, keep important turns
+        Given the node map
+            | a | b | e |
+            |   | c | d |
+
+        And the ways
+            | nodes | highway  | name  |
+            | ab    | tertiary | road  |
+            | bc    | tertiary |       |
+            | cd    | tertiary | road  |
+            | be    | tertiary | other |
+
+        When I route I should get
+            | waypoints | route          | turns                        |
+            | a,d       | road,road,road | depart,continue right,arrive |
+
